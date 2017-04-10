@@ -2744,8 +2744,13 @@ static void homeaxis(AxisEnum axis) {
 
     set_destination_to_current();
 
-    max_feedrate_e = planner.max_feedrate_mm_s[E_AXIS + active_extruder];
-    planner.max_feedrate_mm_s[E_AXIS + active_extruder] = retract_feedrate_mm_s;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      max_feedrate_e = planner.max_feedrate_mm_s[E_AXIS + active_extruder];
+      planner.max_feedrate_mm_s[E_AXIS + active_extruder] = retract_feedrate_mm_s;
+    #else
+      max_feedrate_e = planner.max_feedrate_mm_s[E_AXIS];
+      planner.max_feedrate_mm_s[E_AXIS] = retract_feedrate_mm_s;
+    #endif
 
     if (retracting) {
 
@@ -2774,7 +2779,12 @@ static void homeaxis(AxisEnum axis) {
       prepare_move_to_destination();
     }
 
-    planner.max_feedrate_mm_s[E_AXIS + active_extruder] = max_feedrate_e;
+    #if ENABLED(DISTINCT_E_FACTORS)
+      planner.max_feedrate_mm_s[E_AXIS + active_extruder] = max_feedrate_e;
+    #else
+      planner.max_feedrate_mm_s[E_AXIS] = max_feedrate_e;
+    #endif
+
     feedrate_mm_s = old_feedrate_mm_s;
     retracted[active_extruder] = retracting;
 
